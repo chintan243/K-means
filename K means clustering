@@ -1,0 +1,70 @@
+crime_2016 <- subset(crime_csv_all_years,crime_csv_all_years$YEAR==2016)
+crime_2016_omit <- subset(crime_2016,crime_2016$X!=0.0)
+crime_2016_omit <- crime_2016_omit[,-7:-8]
+crime_2016_omit <- data.frame(crime_2016_omit,x)
+observation<- crime_2016_omit[,c(1,5)]
+
+central <- subset(observation, observation$NEIGHBOURHOOD=="Central Business District")
+MountPleasant <- subset(observation, observation$NEIGHBOURHOOD=="Mount Pleasant")
+ArbutusRidge <- subset(observation, observation$NEIGHBOURHOOD=="Arbutus Ridge")
+Dunbarsouthlnds <- subset(observation, observation$NEIGHBOURHOOD=="Dunbar-southlnds")
+Fairview <- subset(observation, observation$NEIGHBOURHOOD=="Fairview")
+GrandviewWoodland <- subset(observation, observation$NEIGHBOURHOOD=="Grandview-Woodland")
+HastingsSunrise <- subset(observation, observation$NEIGHBOURHOOD=="Hastings-Sunrise")
+KensingtonCedarCottage <- subset(observation, observation$NEIGHBOURHOOD=="Kensington-Cedar Cottage")
+Kerrisdale <- subset(observation, observation$NEIGHBOURHOOD=="Kerrisdale")
+Killarney <- subset(observation, observation$NEIGHBOURHOOD=="Killarney")
+Kitsilano <- subset(observation, observation$NEIGHBOURHOOD=="Kitsilano")
+Marpole <- subset(observation, observation$NEIGHBOURHOOD=="Marpole")
+MountPleasant <- subset(observation, observation$NEIGHBOURHOOD=="Mount Pleasant")
+Musqueam <- subset(observation, observation$NEIGHBOURHOOD=="Musqueam")
+Oakridge <- subset(observation, observation$NEIGHBOURHOOD=="Oakridge")
+RenfrewCollingwood <- subset(observation, observation$NEIGHBOURHOOD=="Renfrew-Collingwood")
+RileyPark <- subset(observation, observation$NEIGHBOURHOOD=="Riley Park")
+Shaughnessy <- subset(observation, observation$NEIGHBOURHOOD=="Shaughnessy")
+SouthCambie <- subset(observation, observation$NEIGHBOURHOOD=="South Cambie")
+StanleyPark <- subset(observation, observation$NEIGHBOURHOOD=="Stanley Park")
+Strathcona <- subset(observation, observation$NEIGHBOURHOOD=="Strathcona")
+Sunset <- subset(observation, observation$NEIGHBOURHOOD=="Sunset")
+VictoriaFraserview <- subset(observation, observation$NEIGHBOURHOOD=="Victoria-Fraserview")
+westEnd <- subset(observation, observation$NEIGHBOURHOOD=="west End")
+WestPointGrey <- subset(observation, observation$NEIGHBOURHOOD=="WestPointGrey")
+ArbutusRidge <- subset(observation, observation$NEIGHBOURHOOD=="ArbutusRidge")
+
+ArbutusRidge <- as.matrix(table(ArbutusRidge$TYPE ))
+neighborhoods_list <- list(central,Dunbarsouthlnds,Fairview,GrandviewWoodland,HastingsSunrise,KensingtonCedarCottage,Kerrisdale,Killarney,Kitsilano,Marpole,MountPleasant,Musqueam,Oakridge,RenfrewCollingwood,RileyPark,Shaughnessy,SouthCambie,StanleyPark,Strathcona,Sunset,VictoriaFraserview,westEnd,WestPointGrey)
+
+for (i in 1:23) {
+  #y<- name_vector[i]
+  merg <- as.matrix(table(neighborhoods_list[[i]]$TYPE))
+  ArbutusRidge<- data.frame(ArbutusRidge,merg)
+}
+colnames(ArbutusRidge)<- c('ArbutusRidge','central','Dunbarsouthlnds','Fairview','GrandviewWoodland','HastingsSunrise','KensingtonCedarCottage','Kerrisdale','Killarney','Kitsilano','Marpole','MountPleasant','Musqueam','Oakridge','RenfrewCollingwood','RileyPark','Shaughnessy','SouthCambie','StanleyPark','Strathcona','Sunset','VictoriaFraserview','westEnd','WestPointGrey')
+
+#matrix transposed
+transposed <- t(ArbutusRidge)
+
+#Find the appropriate vale for k
+find_k<- transposed[,c(6:7)] 
+
+wssplot <- function(data, nc=15, seed=1234){
+  wss <- (nrow(data)-1)*sum(apply(data,2,var))
+  for (i in 2:nc){
+    set.seed(seed)
+    wss[i] <- sum(kmeans(data, centers=i)$withinss)
+    
+  }
+  plot(1:nc, wss, type="b", xlab="Number of Clusters",
+       ylab="Within groups sum of squares")
+}
+wssplot(find_k)
+#clustering
+
+library("animation")
+crime_cluster <- kmeans.ani(find_k,2,hints = c("Move centers!"))
+crime_cluster$centers
+
+sample_crime_with_cluster <- data.frame(find_k,crime_cluster$cluster)
+sample_cluster1 <- subset(sample_crime_with_cluster, crime_cluster$cluster==1) 
+sample_cluster2 <- subset(sample_crime_with_cluster, crime_cluster$cluster==2) 
+sample_cluster3 <- subset(sample_crime_with_cluster, crime_cluster$cluster==3) 
