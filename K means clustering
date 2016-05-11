@@ -60,8 +60,9 @@ wssplot <- function(data, nc=15, seed=1234){
 wssplot(find_k)
 #clustering
 
-library("animation")
-crime_cluster <- kmeans.ani(find_k,2,hints = c("Move centers!"))
+crime_cluster <- kmeans(find_k, 3,nstart = 25)
+plot(find_k, col=c(crime_cluster$cluster))
+points(crime_cluster$centers,col="orange",pch=16,cex=1)
 crime_cluster$centers
 
 sample_crime_with_cluster <- data.frame(find_k,crime_cluster$cluster)
